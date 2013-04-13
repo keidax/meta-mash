@@ -77,7 +77,6 @@ public class MainWindow extends JFrame {
 			}
 
 		}
-
 		return musicFiles;
 	}
 

@@ -21,14 +21,7 @@ public class proofOfConcept {
 			Yaml yammy = new Yaml();
 		//	yammy.load(reader);
 			System.out.println(yammy.toString());
+			System.out.println(yammy.dump(yammy.load(reader)));
 		} catch (FileNotFoundException e) {}
-	}
-	
-	public proofOfConcept() throws IOException{
-		proof();
-	}
-	
-	public void proof() throws IOException{
-		System.out.println(yaml.load(new FileReader("test.txt")).toString());
 	}
 }
