@@ -14,14 +14,14 @@ public class proofOfConcept {
 	public static void main(String[] args){
 		File file = new File("test.txt");
 		String s = file.getAbsolutePath();
-//		System.out.println(s);
 		FileReader reader;
 		try {
 			reader = new FileReader(file);
 			Yaml yammy = new Yaml();
-		//	yammy.load(reader);
-			System.out.println(yammy.toString());
-			System.out.println(yammy.dump(yammy.load(reader)));
+			Object data = yammy.load(reader);
+			System.out.println(data);
+			System.out.println(data.getClass().toString());
+			System.out.println(yammy.dump(data));
 		} catch (FileNotFoundException e) {}
 	}
 }
