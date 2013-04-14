@@ -10,7 +10,7 @@ import java.util.concurrent.Executors;
 import org.apache.commons.io.IOUtils;
 
 public class FileConverter {
-	public FileConverter(List<File> files, File baseOutputDirectory, final Updater updater, boolean isCBR, int qualityOrBitRate){
+	public FileConverter(List<File> files, File baseOutputDirectory, final Updater updater, boolean isCBR, int qualityOrBitRate, String filetype){
 		
 		updater.setTotalSongs(files.size());
 		int cores = Runtime.getRuntime().availableProcessors();
@@ -78,14 +78,16 @@ public class FileConverter {
 			albumOutputDirectory.mkdirs();
 
 			tempNewFilePath += file.getName();
-			// make sure output file is mp3
-			final String finalNewFilePath = tempNewFilePath.substring(0, tempNewFilePath.lastIndexOf(".")) + ".mp3";
-			final String[] command = { avCommand, "-y","-i", file.getAbsolutePath(), isCBR ? "-b" : "-q", qualityOrBitRate+"", finalNewFilePath };
+			// set output file to correct file type
+			final String finalNewFilePath = tempNewFilePath.substring(0, tempNewFilePath.lastIndexOf(".")) + "."+filetype;
+			final String[] command = { avCommand, "-y","-i", file.getAbsolutePath(), "-acodec",filetype.equals("ogg")?"libvorbis":"mp3", isCBR ? "-b" : "-aq", qualityOrBitRate+"",finalNewFilePath };
 			pool.execute(new Runnable() {
 				@Override
 				public void run() {
 					try {
 						Process process = Runtime.getRuntime().exec(command);
+						IOUtils.copy(process.getInputStream(), System.out);
+						IOUtils.copy(process.getErrorStream(), System.err);
 						process.waitFor();
 						
 						File finishedFile = new File(finalNewFilePath);

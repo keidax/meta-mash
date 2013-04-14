@@ -123,8 +123,10 @@ public class MainWindow extends JFrame {
 		JLabel vbrlabel = new JLabel("VBR - Choose quality");
 		JLabel cbrlabel = new JLabel("CBR - Choose bitrate");
 		vbrslider = new JSlider(0,31);
+		vbrslider.setValue(0);
+		
 		cbrslider = new JSlider(128, 320);
-
+		cbrslider.setValue(192);
 		cbrslider.setPaintLabels(true);
 		cbrslider.setPaintTicks(true);
 		cbrslider.setMajorTickSpacing(64);
@@ -262,6 +264,6 @@ public class MainWindow extends JFrame {
 
 	public void convertFiles(List<File> files, File baseOutputDirectory) {
 		boolean isCBR = cbrrad.isSelected();
-		new FileConverter(files, baseOutputDirectory, updater, isCBR, isCBR ? cbrslider.getValue() : vbrslider.getValue());
+		new FileConverter(files, baseOutputDirectory, updater, isCBR, isCBR ? cbrslider.getValue() : vbrslider.getValue(), "ogg");
 	}
 }

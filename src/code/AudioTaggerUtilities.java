@@ -57,8 +57,19 @@ public class AudioTaggerUtilities {
 
 	public static void setFileArtworkAndTags(File targetFile, File artworkFile, boolean addArtwork, HashMap<String, String> yamlData) {
 		try {
-			AudioFile audioFile = AudioFileIO.read(targetFile);
-			Tag tag = audioFile.getTag();
+			String filename = targetFile.getName();
+			String extension = filename.substring(filename.lastIndexOf(".") + 1, filename.length());
+			AudioFile audioFile = null;
+			Tag tag = null;
+			if(extension.equals("ogg")){
+				audioFile = AudioFileIO.read(targetFile);
+				tag = audioFile.getTag();
+			} else {
+				audioFile = AudioFileIO.read(targetFile);
+				tag = audioFile.getTag();
+			}
+			audioFile = AudioFileIO.read(targetFile);
+			tag = audioFile.getTag();
 			if(addArtwork){
 				Artwork cover = ArtworkFactory.createArtworkFromFile(artworkFile);
 				System.out.println("adding artwork of type " + cover.getMimeType() + " from " + artworkFile + " to " + targetFile);
