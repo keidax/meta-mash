@@ -1,26 +1,22 @@
 package code;
 
-import java.awt.GridLayout;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-
-import org.apache.commons.io.IOUtils;
 
 @SuppressWarnings("serial")
 public class MainWindow extends JFrame {
@@ -54,15 +50,21 @@ public class MainWindow extends JFrame {
 		JButton butt1 = new JButton("Browse");
 		JButton butt2 = new JButton("Browse");
 		JButton butt3 = new JButton("Convert your Files Now!");
-
-		this.getContentPane().setLayout(new GridLayout(2, 2));
-		this.getContentPane().add(butt1);
-		this.getContentPane().add(butt2);
-		this.getContentPane().add(butt3);
+		JPanel topPanel = new JPanel();
+		JPanel middlePanel = new JPanel();
+		JPanel bottomPanel = new JPanel();
+		bottomPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+		this.getContentPane().add(topPanel);
+		this.getContentPane().add(middlePanel);
+		this.getContentPane().add(bottomPanel);
+		this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));
 		field1.setColumns(17);
+		topPanel.add(field1);
+		topPanel.add(butt1);
 		field2.setColumns(17);
-		this.getContentPane().add(field1);
-		this.getContentPane().add(field2);
+		middlePanel.add(field2);
+		middlePanel.add(butt2);
+		bottomPanel.add(butt3);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setVisible(true);
 		
@@ -176,6 +178,7 @@ public class MainWindow extends JFrame {
 
 	public void convertFiles(List<File> files, File baseOutputDirectory) {
 		FileConverter conv = new FileConverter(files, baseOutputDirectory, updater);
+
 	}
 
 }
