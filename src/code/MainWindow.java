@@ -44,7 +44,7 @@ public class MainWindow extends JFrame {
 	JSlider vbrslider;
 	JSlider cbrslider;
 	JLabel filesToConv;
-	JComboBox<String> jcbox;
+	JComboBox jcbox;
 	
 	String[] fileFormats = { "mp3", "ogg", "m4a","flac","wav" }; //TODO add more here?
 
@@ -104,7 +104,7 @@ public class MainWindow extends JFrame {
 		JPanel optionstsub = new JPanel();
 		JPanel optionsbsub = new JPanel();
 		JPanel combo = new JPanel();
-		jcbox = new JComboBox<String>();
+		jcbox = new JComboBox();
 		
 		vbrrad = new JRadioButton();
 		cbrrad = new JRadioButton();
