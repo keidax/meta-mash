@@ -1,5 +1,9 @@
 package code;
 
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -10,8 +14,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JTextField;
 
 public class MainWindow extends JFrame {
 
@@ -27,7 +33,39 @@ public class MainWindow extends JFrame {
 		System.out.println(System.getProperty("os.name"));
 		this.setSize(200, 200);
 		this.setVisible(true);
+		this.getContentPane().setLayout(new GridLayout(2,2));
+		JTextField field1 = new JTextField();
+		JTextField field2 = new JTextField();
+		JButton butt1 = new JButton("Browse");
+		JButton butt2 = new JButton("Browse");
+		butt1.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				//Insert JFileChooser code
+			}
+		});
+		butt2.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				//Insert JFileChoose code
+			}
+		});
+		this.getContentPane().add(butt1);
+		this.getContentPane().add(butt2);
+		field1.setColumns(17);
+		field2.setColumns(17);
+		this.getContentPane().add(field1);
+		this.getContentPane().add(field2);
+		
+		
+		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		this.pack();
+		
+		
 		JFileChooser fileChooser = new JFileChooser(new File(
 				"/home/gabriel/code/music-converter"));
 		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -107,7 +145,6 @@ public class MainWindow extends JFrame {
 			
 			String fileBase = file.getPath();
 			fileBase = fileBase.substring(0, fileBase.lastIndexOf("."));
-			
 			String newFilePath = baseOutputDirectory.getAbsolutePath() + "/";
 			
 
