@@ -16,6 +16,7 @@ import javax.swing.JFrame;
 public class MainWindow extends JFrame {
 
 	AtomicInteger runningSongs = new AtomicInteger();
+	int totalSongs = 0;
 	int songsCompleted = 0;
 
 	String[] fileFormats = { "mp3", "ogg", "m4a" };
@@ -37,7 +38,6 @@ public class MainWindow extends JFrame {
 			System.out.println(inputFiles.size() + " music files found.");
 			System.out.println("choose output directory");
 			File outputDirectory = getOutputDirectory();
-			// System.out.println(outputDirectory.getPath());
 			convertFiles(inputFiles, outputDirectory);
 		}
 	}
@@ -92,28 +92,50 @@ public class MainWindow extends JFrame {
 		return musicFiles;
 	}
 
-	public void convertFiles(List<File> files, File outputDirectory) {
-		ExecutorService pool = Executors.newCachedThreadPool();
+	public void convertFiles(List<File> files, File baseOutputDirectory) {
+		int cores = Runtime.getRuntime().availableProcessors();
+		System.out.println("# of cores: " + cores);
+		ExecutorService pool = Executors.newFixedThreadPool(cores);
+		totalSongs = files.size();
+		
 		for (File file : files) {
+			
 			String fileBase = file.getPath();
 			fileBase = fileBase.substring(0, fileBase.lastIndexOf("."));
-			String newFilePath = outputDirectory.getAbsolutePath() + "/"
-					+ file.getName();
-			newFilePath = newFilePath
-					.substring(0, newFilePath.lastIndexOf(".")) + ".mp3";
-			String yamlFilePath = fileBase+".yml";
-			Object data = YamlUtilities.getYamlData(yamlFilePath);
-			HashMap realData = ((LinkedHashMap) data);
-			System.out.println(realData.get("artist"));
+			
+			String newFilePath = baseOutputDirectory.getAbsolutePath() + "/";
+			
+
+			String yamlFilePath = fileBase + ".yml";
+			File yamlFile = new File(yamlFilePath);
+			if(yamlFile.exists()){
+				Object data = YamlUtilities.getMatchingYamlData(yamlFile);
+				HashMap<String, String> realData = ((LinkedHashMap<String, String>) data);
+//				System.out.println("artist: "+realData.get("artist"));
+				newFilePath+=realData.get("artist")+"/"+realData.get("album")+"/";
+			} else { //no yaml file
+				//TODO try to guess artist/album from filename
+				newFilePath+="Unknown Artist/Unknow Album/";
+			}
+			File albumOutputDirectory = new File(newFilePath);
+			albumOutputDirectory.mkdirs();
+			
+			
+			newFilePath+=file.getName();
+			//make sure output file is mp3
+			newFilePath = newFilePath.substring(0, newFilePath.lastIndexOf(".")) + ".mp3";
 			System.out.println(newFilePath);
+
+			// System.out.println(newFilePath);
 			final String[] command = { "avconv", "-i", file.getAbsolutePath(),
-					"-q", "0", newFilePath };
+					"-metadata", "artist=sadf",
+					"-b", "192K", newFilePath };
+//					"-q","1", newFilePath };
 			pool.execute(new Runnable() {
 				@Override
 				public void run() {
 					try {
-						runningSongs.incrementAndGet();
-						System.out.println("starting process");
+//						runningSongs.incrementAndGet();
 						Process process = Runtime.getRuntime().exec(command);
 						process.waitFor();
 						threadDone();
@@ -130,11 +152,12 @@ public class MainWindow extends JFrame {
 	}
 
 	private void threadDone() {
-		runningSongs.decrementAndGet();
+//		runningSongs.decrementAndGet();
 		songsCompleted++;
-		System.out.println("converted " + songsCompleted + " songs");
-		if (runningSongs.get()==0) {
-			System.out.println("All songs converted!");
+		System.out.println("converted " + songsCompleted + "/" + totalSongs
+				+ " songs");
+		if (songsCompleted == totalSongs) {
+			System.out.println("All songs converted!");		
 		}
 	}
 
