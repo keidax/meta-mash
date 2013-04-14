@@ -10,14 +10,21 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JRadioButton;
+import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.border.Border;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 @SuppressWarnings("serial")
 public class MainWindow extends JFrame {
@@ -55,10 +62,36 @@ public class MainWindow extends JFrame {
 		JPanel topPanel = new JPanel();
 		JPanel middlePanel = new JPanel();
 		JPanel bottomPanel = new JPanel();
+		JPanel optionst = new JPanel();
+		JPanel optionsb = new JPanel();
+		JPanel optionstsub = new JPanel();
+		JPanel optionsbsub = new JPanel();
+		
+		JRadioButton vbrrad = new JRadioButton();
+		JRadioButton cbrrad = new JRadioButton();
+		vbrrad.setBorder(null);
+		
+		ButtonGroup bg = new ButtonGroup();
+		bg.add(vbrrad);
+		bg.add(cbrrad);
+		
 		bottomPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
 		this.getContentPane().add(topPanel);
 		this.getContentPane().add(middlePanel);
 		this.getContentPane().add(bottomPanel);
+		this.getContentPane().add(optionst);
+		this.getContentPane().add(optionstsub);
+		this.getContentPane().add(optionsb);
+		this.getContentPane().add(optionsbsub);
+		JLabel vbrlabel = new JLabel("VBR - Higher quality, slower time");
+		JLabel sbrlabel = new JLabel("SBR - Lower quality, more specific control");
+		JSlider vbrslider = new JSlider(0,31);
+		JSlider sbrslider = new JSlider(0,100);
+		sbrslider.setPaintTicks(true);
+		sbrslider.setMajorTickSpacing(25);
+		sbrslider.setSnapToTicks(true);
+		sbrslider.getSnapToTicks();
+		
 		this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));
 		field1.setColumns(25);
 		topPanel.add(field1);
@@ -67,6 +100,37 @@ public class MainWindow extends JFrame {
 		middlePanel.add(field2);
 		middlePanel.add(butt2);
 		bottomPanel.add(butt3);
+		
+		optionst.setLayout(new FlowLayout(FlowLayout.CENTER));
+		optionsb.setLayout(new FlowLayout(FlowLayout.CENTER));
+		
+		optionst.add(vbrrad);
+		optionst.add(vbrlabel);
+		optionstsub.add(vbrslider);
+		
+		optionsbsub.add(sbrslider);
+		optionsb.add(cbrrad);
+		optionsb.add(sbrlabel);
+		
+		vbrslider.addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		sbrslider.addChangeListener(new ChangeListener() {
+			
+			public void stateChanged(ChangeEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		
+		
+		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setVisible(true);
 		
