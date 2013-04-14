@@ -29,57 +29,76 @@ public class MainWindow extends JFrame {
 
 	public MainWindow() {
 		super();
+		final JTextField field1 = new JTextField();
+		final JTextField field2 = new JTextField();
+		JButton butt1 = new JButton("Browse");
+		JButton butt2 = new JButton("Browse");
+		JButton butt3 = new JButton("Convert your Files Now!");
+		this.getContentPane().add(butt1);
+		this.getContentPane().add(butt2);
+		this.getContentPane().add(butt3);
+		field1.setColumns(17);
+		field2.setColumns(17);
+		this.getContentPane().add(field1);
+		this.getContentPane().add(field2);
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setSize(200, 200);
 		this.setVisible(true);
 		this.getContentPane().setLayout(new GridLayout(2,2));
-		JTextField field1 = new JTextField();
-		JTextField field2 = new JTextField();
-		JButton butt1 = new JButton("Browse");
-		JButton butt2 = new JButton("Browse");
+		
+		System.out.println(System.getProperty("os.name"));
+		
+
 		butt1.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				JFileChooser fileChooser = new JFileChooser(new File("/home/gabriel/code/music-converter"));
+				fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				System.out.println("choose music directory");
+				int returnVal = fileChooser.showOpenDialog(MainWindow.this);
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					File musicDirectory = fileChooser.getSelectedFile();
+					field1.setText(musicDirectory.getAbsolutePath().toString());
+					List<File> inputFiles = getMusicFilesFromDirectory(musicDirectory);
+					System.out.println(inputFiles.size() + " music files found.");
+				}
 				//Insert JFileChooser code
 			}
+			
 		});
+		
 		butt2.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				//Insert JFileChoose code
+				File outputDirectory = getOutputDirectory();
+				field2.setText(outputDirectory.toString());
 			}
+			
 		});
-		this.getContentPane().add(butt1);
-		this.getContentPane().add(butt2);
-		field1.setColumns(17);
-		field2.setColumns(17);
-		this.getContentPane().add(field1);
-		this.getContentPane().add(field2);
 		
-		
-		
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		butt3.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				//Convert files
+				if (! field1.getText().equals("") && ! field2.getText().equals("")) {	
+					convertFiles(getMusicFilesFromDirectory(toFile(field1)), toFile(field2));
+				}
+				
+			}
+			
+		});
 		
 		this.pack();
-		
-		
-		JFileChooser fileChooser = new JFileChooser(new File(
-				"/home/gabriel/code/music-converter"));
-		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		System.out.println("choose music directory");
-		int returnVal = fileChooser.showOpenDialog(this);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			File musicDirectory = fileChooser.getSelectedFile();
-
-			List<File> inputFiles = getMusicFilesFromDirectory(musicDirectory);
-			System.out.println(inputFiles.size() + " music files found.");
-			System.out.println("choose output directory");
-			File outputDirectory = getOutputDirectory();
-			convertFiles(inputFiles, outputDirectory);
-		}
 	}
 
+	public static File toFile(JTextField field){
+		File file = new File(field.getText());
+		return file;
+	}
+	
 	public File getOutputDirectory() {
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		JFileChooser fileChooser = new JFileChooser(new File(
@@ -148,6 +167,7 @@ public class MainWindow extends JFrame {
 			
 			final File artworkFile;
 			final boolean containsArtwork;
+
 			String yamlFilePath = fileBase + ".yml";
 			File yamlFile = new File(yamlFilePath);
 			if(yamlFile.exists()){
