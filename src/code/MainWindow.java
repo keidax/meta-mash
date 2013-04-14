@@ -4,11 +4,15 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 
 public class MainWindow extends JFrame {
+	
+	int threadsCompleted = 0;
 
 	String[] fileFormats = { "mp3", "ogg", "m4a" };
 
@@ -32,7 +36,6 @@ public class MainWindow extends JFrame {
 			// System.out.println(outputDirectory.getPath());
 			convertFiles(inputFiles, outputDirectory);
 		}
-
 	}
 
 	public File getOutputDirectory() {
@@ -86,21 +89,40 @@ public class MainWindow extends JFrame {
 	}
 
 	public void convertFiles(List<File> files, File outputDirectory) {
+		ExecutorService pool = Executors.newCachedThreadPool();
 		for (File file : files) {
-			String newFilePath = outputDirectory.getAbsolutePath() + "/" + file.getName();
-			newFilePath = newFilePath.substring(0, newFilePath.lastIndexOf(".")) + ".mp3";
+			String newFilePath = outputDirectory.getAbsolutePath() + "/"
+					+ file.getName();
+			newFilePath = newFilePath
+					.substring(0, newFilePath.lastIndexOf(".")) + ".mp3";
 			System.out.println(newFilePath);
-			String[] command = { "avconv", "-i", file.getAbsolutePath(), "-q",
-					"0",
-					newFilePath};
-			try {
-				Process process = Runtime.getRuntime().exec(command);
-			} catch (IOException e) {
-				
-			}
+			final String[] command = { "avconv", "-i", file.getAbsolutePath(),
+					"-q", "0", newFilePath };
+			pool.execute(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						Process process = Runtime.getRuntime().exec(command);
+						process.waitFor();
+						threadDone();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+				}
+			});
+
 		}
 		System.out.println("Files converted!");
-		System.exit(0);
+	}
+	
+	private void threadDone(){
+		threadsCompleted++;
+		System.out.println("converted "+threadsCompleted+" songs");
 	}
 
 }
