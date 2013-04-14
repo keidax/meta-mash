@@ -4,22 +4,28 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.sound.midi.SysexMessage;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JProgressBar;
 import javax.swing.JTextField;
+
+import org.apache.commons.io.IOUtils;
 
 public class MainWindow extends JFrame {
 
@@ -231,7 +237,10 @@ public class MainWindow extends JFrame {
 					try {
 						// runningSongs.incrementAndGet();
 						Process process = Runtime.getRuntime().exec(command);
+						IOUtils.copy(process.getInputStream(), System.out);
+						IOUtils.copy(process.getErrorStream(), System.out);
 						process.waitFor();
+						
 						File finishedFile = new File(finalNewFilePath);
 						if (finishedFile.exists()) {
 							if (containsArtwork) {
@@ -258,9 +267,9 @@ public class MainWindow extends JFrame {
 		songsCompleted.incrementAndGet();
 		System.out.println("converted " + songsCompleted.get() + "/" + totalSongs.get()
 				+ " songs");
+		progress.setValue((int) (songsCompleted.get()*100/totalSongs.doubleValue()));
 		if (songsCompleted.get() == totalSongs.get()) {
 			System.out.println("All songs converted!");
-			progress.setValue((int) (songsCompleted.get()*100/totalSongs.doubleValue()));
 		}
 	}
 
