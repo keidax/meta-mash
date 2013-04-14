@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 
 public class MainWindow extends JFrame {
@@ -26,6 +27,8 @@ public class MainWindow extends JFrame {
 	AtomicInteger totalSongs = new AtomicInteger();
 	AtomicInteger songsCompleted = new AtomicInteger();
 
+	JProgressBar progress;
+	
 	String[] fileFormats = { "mp3", "ogg", "m4a" };
 
 	public MainWindow() {
@@ -46,6 +49,9 @@ public class MainWindow extends JFrame {
 		this.getContentPane().add(field2);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setVisible(true);
+		
+		progress = new JProgressBar(0, 100);
+		this.add(progress);
 		
 		System.out.println(System.getProperty("os.name"));
 		
@@ -216,7 +222,7 @@ public class MainWindow extends JFrame {
 //			System.out.println(finalNewFilePath);
 
 			// System.out.println(newFilePath);
-			final String[] command = { avCommand, "-i", file.getAbsolutePath(),
+			final String[] command = { avCommand, "-y","-i", file.getAbsolutePath(),
 					"-b", "192K", finalNewFilePath };
 			// "-q","1", newFilePath };
 			pool.execute(new Runnable() {
@@ -232,7 +238,7 @@ public class MainWindow extends JFrame {
 								AudioTaggerUtilities.setFileArtwork(finishedFile, artworkFile);
 							}
 						} else {
-							System.err.println("File not created! Oh no!");
+							System.err.println("File "+finalNewFilePath+" not created! Oh no!");
 						}
 						threadDone();
 					} catch (IOException e) {
@@ -254,6 +260,7 @@ public class MainWindow extends JFrame {
 				+ " songs");
 		if (songsCompleted.get() == totalSongs.get()) {
 			System.out.println("All songs converted!");
+			progress.setValue((int) (songsCompleted.get()*100/totalSongs.doubleValue()));
 		}
 	}
 
