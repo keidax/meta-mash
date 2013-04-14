@@ -19,9 +19,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.sound.midi.SysexMessage;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 
@@ -44,15 +46,21 @@ public class MainWindow extends JFrame {
 		JButton butt1 = new JButton("Browse");
 		JButton butt2 = new JButton("Browse");
 		JButton butt3 = new JButton("Convert your Files Now!");
-
-		this.getContentPane().setLayout(new GridLayout(2, 2));
-		this.getContentPane().add(butt1);
-		this.getContentPane().add(butt2);
-		this.getContentPane().add(butt3);
+		JPanel topPanel = new JPanel();
+		JPanel middlePanel = new JPanel();
+		JPanel bottomPanel = new JPanel();
+		bottomPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+		this.getContentPane().add(topPanel);
+		this.getContentPane().add(middlePanel);
+		this.getContentPane().add(bottomPanel);
+		this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));
 		field1.setColumns(17);
+		topPanel.add(field1);
+		topPanel.add(butt1);
 		field2.setColumns(17);
-		this.getContentPane().add(field1);
-		this.getContentPane().add(field2);
+		middlePanel.add(field2);
+		middlePanel.add(butt2);
+		bottomPanel.add(butt3);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setVisible(true);
 		
@@ -169,9 +177,7 @@ public class MainWindow extends JFrame {
 		ExecutorService pool = Executors.newFixedThreadPool(cores);
 		totalSongs.set( files.size());
 
-		// workaround for mac
-		String avCommand = System.getProperty("os.name").equalsIgnoreCase(
-				"linux") ? "avconv" : "avconvert";
+		String avCommand = "avconv";
 
 		for (File file : files) {
 
@@ -228,7 +234,7 @@ public class MainWindow extends JFrame {
 //			System.out.println(finalNewFilePath);
 
 			// System.out.println(newFilePath);
-			final String[] command = { avCommand, "-y","-i", file.getAbsolutePath(),
+			final String[] command = { avCommand,"-y", "-i", file.getAbsolutePath(),
 					"-b", "192K", finalNewFilePath };
 			// "-q","1", newFilePath };
 			pool.execute(new Runnable() {
@@ -244,7 +250,7 @@ public class MainWindow extends JFrame {
 						File finishedFile = new File(finalNewFilePath);
 						if (finishedFile.exists()) {
 							if (containsArtwork) {
-								AudioTaggerUtilities.setFileArtwork(finishedFile, artworkFile);
+//								AudioTaggerUtilities.setFileArtwork(finishedFile, artworkFile);
 							}
 						} else {
 							System.err.println("File "+finalNewFilePath+" not created! Oh no!");
