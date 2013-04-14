@@ -23,8 +23,8 @@ import javax.swing.JTextField;
 public class MainWindow extends JFrame {
 
 	AtomicInteger runningSongs = new AtomicInteger();
-	int totalSongs = 0;
-	int songsCompleted = 0;
+	AtomicInteger totalSongs = new AtomicInteger();
+	AtomicInteger songsCompleted = new AtomicInteger();
 
 	String[] fileFormats = { "mp3", "ogg", "m4a" };
 
@@ -155,7 +155,7 @@ public class MainWindow extends JFrame {
 		int cores = Runtime.getRuntime().availableProcessors();
 		System.out.println("# of cores: " + cores);
 		ExecutorService pool = Executors.newFixedThreadPool(cores);
-		totalSongs = files.size();
+		totalSongs.set( files.size());
 
 		// workaround for mac
 		String avCommand = System.getProperty("os.name").equalsIgnoreCase(
@@ -249,10 +249,10 @@ public class MainWindow extends JFrame {
 
 	private void threadDone() {
 		// runningSongs.decrementAndGet();
-		songsCompleted++;
-		System.out.println("converted " + songsCompleted + "/" + totalSongs
+		songsCompleted.incrementAndGet();
+		System.out.println("converted " + songsCompleted.get() + "/" + totalSongs.get()
 				+ " songs");
-		if (songsCompleted == totalSongs) {
+		if (songsCompleted.get() == totalSongs.get()) {
 			System.out.println("All songs converted!");
 		}
 	}
