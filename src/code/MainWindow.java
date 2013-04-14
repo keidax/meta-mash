@@ -1,5 +1,6 @@
 package code;
 
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -45,6 +46,7 @@ public class MainWindow extends JFrame {
 		} catch (UnsupportedLookAndFeelException e1) {
 			e1.printStackTrace();
 		}
+		
 		final JTextField field1 = new JTextField();
 		final JTextField field2 = new JTextField();
 		JButton butt1 = new JButton("Browse");
@@ -58,10 +60,10 @@ public class MainWindow extends JFrame {
 		this.getContentPane().add(middlePanel);
 		this.getContentPane().add(bottomPanel);
 		this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));
-		field1.setColumns(17);
+		field1.setColumns(25);
 		topPanel.add(field1);
 		topPanel.add(butt1);
-		field2.setColumns(17);
+		field2.setColumns(25);
 		middlePanel.add(field2);
 		middlePanel.add(butt2);
 		bottomPanel.add(butt3);
