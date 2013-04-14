@@ -6,13 +6,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 
 public class MainWindow extends JFrame {
-	
-	int threadsCompleted = 0;
+
+	AtomicInteger runningSongs = new AtomicInteger();
+	int songsCompleted = 0;
 
 	String[] fileFormats = { "mp3", "ogg", "m4a" };
 
@@ -102,6 +104,8 @@ public class MainWindow extends JFrame {
 				@Override
 				public void run() {
 					try {
+						runningSongs.incrementAndGet();
+						System.out.println("starting process");
 						Process process = Runtime.getRuntime().exec(command);
 						process.waitFor();
 						threadDone();
@@ -112,17 +116,18 @@ public class MainWindow extends JFrame {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-
 				}
 			});
-
 		}
-		System.out.println("Files converted!");
 	}
-	
-	private void threadDone(){
-		threadsCompleted++;
-		System.out.println("converted "+threadsCompleted+" songs");
+
+	private void threadDone() {
+		runningSongs.decrementAndGet();
+		songsCompleted++;
+		System.out.println("converted " + songsCompleted + " songs");
+		if (runningSongs.get()==0) {
+			System.out.println("All songs converted!");
+		}
 	}
 
 }
