@@ -22,9 +22,7 @@ public class MainWindow extends JFrame {
 	String[] fileFormats = { "mp3", "ogg", "m4a" };
 
 	public MainWindow() {
-		
 		super();
-		System.out.println(System.getProperty("os.name"));
 		this.setSize(200, 200);
 		this.setVisible(true);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -108,33 +106,43 @@ public class MainWindow extends JFrame {
 			String fileBase = file.getPath();
 			fileBase = fileBase.substring(0, fileBase.lastIndexOf("."));
 			
-			String newFilePath = baseOutputDirectory.getAbsolutePath() + "/";
+			String tempNewFilePath = baseOutputDirectory.getAbsolutePath() + "/";
 			
-
+			final File artworkFile;
+			final boolean containsArtwork;
 			String yamlFilePath = fileBase + ".yml";
 			File yamlFile = new File(yamlFilePath);
 			if(yamlFile.exists()){
 				Object data = YamlUtilities.getMatchingYamlData(yamlFile);
 				HashMap<String, String> realData = ((LinkedHashMap<String, String>) data);
 //				System.out.println("artist: "+realData.get("artist"));
-				newFilePath+=realData.get("artist")+"/"+realData.get("album")+"/";
+				tempNewFilePath+=realData.get("artist")+"/"+realData.get("album")+"/";
+				if(realData.containsKey("artwork"));{
+					containsArtwork = true;
+					String artworkPath = realData.get("artwork");
+					System.out.println(artworkPath);
+					artworkFile = new File(artworkPath);
+				}
+				
 			} else { //no yaml file
 				//TODO try to guess artist/album from filename
-				newFilePath+="Unknown Artist/Unknow Album/";
+				tempNewFilePath+="Unknown Artist/Unknow Album/";
+				containsArtwork = false;
+				artworkFile = null;
 			}
-			File albumOutputDirectory = new File(newFilePath);
+			File albumOutputDirectory = new File(tempNewFilePath);
 			albumOutputDirectory.mkdirs();
 			
 			
-			newFilePath+=file.getName();
+			tempNewFilePath+=file.getName();
 			//make sure output file is mp3
-			newFilePath = newFilePath.substring(0, newFilePath.lastIndexOf(".")) + ".mp3";
-			System.out.println(newFilePath);
+			final String finalNewFilePath = tempNewFilePath.substring(0, tempNewFilePath.lastIndexOf(".")) + ".mp3";
+			System.out.println(finalNewFilePath);
 
 			// System.out.println(newFilePath);
 			final String[] command = { avCommand, "-i", file.getAbsolutePath(),
 					"-metadata", "artist=sadf",
-					"-b", "192K", newFilePath };
+					"-b", "192K", finalNewFilePath };
 //					"-q","1", newFilePath };
 			pool.execute(new Runnable() {
 				@Override
@@ -143,6 +151,15 @@ public class MainWindow extends JFrame {
 //						runningSongs.incrementAndGet();
 						Process process = Runtime.getRuntime().exec(command);
 						process.waitFor();
+						File finishedFile = new File(finalNewFilePath);
+						if(finishedFile.exists()){
+							if(containsArtwork){
+								AudioTaggerUtilities.setFileArtwork(finishedFile, artworkFile);
+							}
+							
+						} else {
+							System.err.println("File not created! Oh no!");
+						}
 						threadDone();
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
