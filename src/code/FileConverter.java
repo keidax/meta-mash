@@ -11,10 +11,10 @@ import org.apache.commons.io.IOUtils;
 
 public class FileConverter {
 	public FileConverter(List<File> files, File baseOutputDirectory, final Updater updater, boolean isCBR, int qualityOrBitRate){
+		
 		updater.setTotalSongs(files.size());
 		int cores = Runtime.getRuntime().availableProcessors();
 		ExecutorService pool = Executors.newFixedThreadPool(cores);
-		
 
 		String avCommand = "avconv";
 
@@ -35,7 +35,19 @@ public class FileConverter {
 			if (yamlFile.exists()) {
 				hasYaml = true;
 				yamlData  = YamlUtilities.getMatchingYamlData(yamlFile);
-				tempNewFilePath += yamlData.get("artist") + "/" + yamlData.get("album") + "/";
+				
+				if(yamlData.get("artist")!=null){
+					tempNewFilePath += yamlData.get("artist") + "/";
+				} else {
+					tempNewFilePath += "Unknown Artist/";
+				}
+				
+				if(yamlData.get("album")!=null){
+					tempNewFilePath += yamlData.get("album") + "/";
+				} else {
+					tempNewFilePath += "Unknow Album/";
+				}
+				
 				if (yamlData.containsKey("artwork"))
 				{
 					String artworkPath = yamlData.get("artwork");
@@ -60,21 +72,20 @@ public class FileConverter {
 				hasYaml = false;
 				yamlData = null;
 			}
+			
+			//make sure all dirs are there
 			File albumOutputDirectory = new File(tempNewFilePath);
 			albumOutputDirectory.mkdirs();
 
 			tempNewFilePath += file.getName();
 			// make sure output file is mp3
 			final String finalNewFilePath = tempNewFilePath.substring(0, tempNewFilePath.lastIndexOf(".")) + ".mp3";
-			final String[] command = { avCommand, "-y","-i", file.getAbsolutePath(), 
-					isCBR ? "-b" : "-q", qualityOrBitRate+"", finalNewFilePath };
+			final String[] command = { avCommand, "-y","-i", file.getAbsolutePath(), isCBR ? "-b" : "-q", qualityOrBitRate+"", finalNewFilePath };
 			pool.execute(new Runnable() {
 				@Override
 				public void run() {
 					try {
 						Process process = Runtime.getRuntime().exec(command);
-//						IOUtils.copy(process.getInputStream(), System.out);
-//						IOUtils.copy(process.getErrorStream(), System.err);
 						process.waitFor();
 						
 						File finishedFile = new File(finalNewFilePath);

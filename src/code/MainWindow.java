@@ -151,24 +151,18 @@ public class MainWindow extends JFrame {
 		optionsb.add(cbrlabel);
 		
 		bottomPanel.add(filesToConv = new JLabel(""));
+		
 //		vbrslider.addChangeListener(new ChangeListener() {
-//			
 //			@Override
 //			public void stateChanged(ChangeEvent e) {
-//				// TODO Auto-generated method stub
-//				
 //			}
 //		});
 //		cbrslider.addChangeListener(new ChangeListener() {
-//			
 //			public void stateChanged(ChangeEvent e) {
-//				// TODO Auto-generated method stub
-//				
 //			}
 //		});
 
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setVisible(true);
 		
 		progress = new JProgressBar(0, 100);
 		this.add(progress);
@@ -176,7 +170,7 @@ public class MainWindow extends JFrame {
 		
 		updater = new Updater(progress);
 		
-		System.out.println(System.getProperty("os.name"));
+//		System.out.println(System.getProperty("os.name"));
 		
 
 		butt1.addActionListener(new ActionListener() {
@@ -221,7 +215,11 @@ public class MainWindow extends JFrame {
 			}
 		});
 		
+		
+		this.setBounds(300, 100, 10, 10);
 		this.pack();
+		
+		this.setVisible(true);
 	}
 
 	public static File toFile(JTextField field){
