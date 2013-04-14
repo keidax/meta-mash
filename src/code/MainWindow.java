@@ -45,7 +45,7 @@ public class MainWindow extends JFrame {
 	JSlider vbrslider;
 	JSlider cbrslider;
 	
-	String[] fileFormats = { "mp3", "ogg", "m4a" }; //TODO add more here?
+	String[] fileFormats = { "mp3", "ogg", "m4a","flac","wav" }; //TODO add more here?
 
 	public MainWindow() {
 		super();
