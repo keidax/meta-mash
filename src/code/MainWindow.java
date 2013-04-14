@@ -44,6 +44,7 @@ public class MainWindow extends JFrame {
 	JTextField field2;
 	JSlider vbrslider;
 	JSlider cbrslider;
+	JLabel filesToConv;
 	
 	String[] fileFormats = { "mp3", "ogg", "m4a","flac","wav" }; //TODO add more here?
 
@@ -149,25 +150,23 @@ public class MainWindow extends JFrame {
 		optionsb.add(cbrrad);
 		optionsb.add(cbrlabel);
 		
-		vbrslider.addChangeListener(new ChangeListener() {
-			
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
-		cbrslider.addChangeListener(new ChangeListener() {
-			
-			public void stateChanged(ChangeEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
-		
-		
-		
-		
+		bottomPanel.add(filesToConv = new JLabel(""));
+//		vbrslider.addChangeListener(new ChangeListener() {
+//			
+//			@Override
+//			public void stateChanged(ChangeEvent e) {
+//				// TODO Auto-generated method stub
+//				
+//			}
+//		});
+//		cbrslider.addChangeListener(new ChangeListener() {
+//			
+//			public void stateChanged(ChangeEvent e) {
+//				// TODO Auto-generated method stub
+//				
+//			}
+//		});
+
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setVisible(true);
 		
@@ -192,6 +191,8 @@ public class MainWindow extends JFrame {
 					field1.setText(musicDirectory.getAbsolutePath().toString());
 					List<File> inputFiles = getMusicFilesFromDirectory(musicDirectory);
 					System.out.println(inputFiles.size() + " music files found.");
+					
+					filesToConv.setText(inputFiles.size() + " music files found.");
 				}
 			}
 		});
