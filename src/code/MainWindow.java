@@ -3,6 +3,8 @@ package code;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -93,10 +95,16 @@ public class MainWindow extends JFrame {
 	public void convertFiles(List<File> files, File outputDirectory) {
 		ExecutorService pool = Executors.newCachedThreadPool();
 		for (File file : files) {
+			String fileBase = file.getPath();
+			fileBase = fileBase.substring(0, fileBase.lastIndexOf("."));
 			String newFilePath = outputDirectory.getAbsolutePath() + "/"
 					+ file.getName();
 			newFilePath = newFilePath
 					.substring(0, newFilePath.lastIndexOf(".")) + ".mp3";
+			String yamlFilePath = fileBase+".yml";
+			Object data = YamlUtilities.getYamlData(yamlFilePath);
+			HashMap realData = ((LinkedHashMap) data);
+			System.out.println(realData.get("artist"));
 			System.out.println(newFilePath);
 			final String[] command = { "avconv", "-i", file.getAbsolutePath(),
 					"-q", "0", newFilePath };

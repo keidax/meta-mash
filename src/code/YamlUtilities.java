@@ -8,8 +8,8 @@ import java.util.Set;
 
 import org.yaml.snakeyaml.Yaml;
 
-public class proofOfConcept {
-
+public class YamlUtilities {
+	
 	public static void main(String[] args){
 		File file = new File("test_in/song_01.yml");
 		String s = file.getAbsolutePath();
@@ -25,6 +25,19 @@ public class proofOfConcept {
 		} catch (FileNotFoundException e) {}
 	}
 	
+	public static Object getYamlData(String s){
+		FileReader reader;
+		Object data = null;
+		try {
+			reader = new FileReader(s);
+			Yaml yaml = new Yaml();
+			data = yaml.load(reader);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		return data;
+	}
+	
 	public static String getData(Object data){
 		String sArtist = getArtist(data);
 		String sAlbum = getAlbum(data);
@@ -32,6 +45,8 @@ public class proofOfConcept {
 		System.out.println(sArtist + sAlbum + sTitle);
 		return sArtist + sAlbum + sTitle;
 	}
+	
+
 	
 	public static String getArtist(Object data){
 		return "artist: "+ ((LinkedHashMap) data).get("artist");
