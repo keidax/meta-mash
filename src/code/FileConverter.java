@@ -29,6 +29,8 @@ public class FileConverter {
 			final HashMap<String, String> yamlData;
 			final boolean containsArtwork;
 			final boolean hasYaml;
+			
+			String finalFileName = "";
 
 			String yamlFilePath = fileBase + ".yml";
 			File yamlFile = new File(yamlFilePath);
@@ -46,6 +48,12 @@ public class FileConverter {
 					tempNewFilePath += yamlData.get("album") + "/";
 				} else {
 					tempNewFilePath += "Unknow Album/";
+				}
+				
+				if(yamlData.get("title")!=null){
+					finalFileName = yamlData.get("title")+"."; // dot to ensure file extension works properly
+				} else {
+					finalFileName = file.getName();
 				}
 				
 				if (yamlData.containsKey("artwork"))
@@ -71,13 +79,14 @@ public class FileConverter {
 				artworkFile = null;
 				hasYaml = false;
 				yamlData = null;
+				finalFileName = file.getName();
 			}
 			
 			//make sure all dirs are there
 			File albumOutputDirectory = new File(tempNewFilePath);
 			albumOutputDirectory.mkdirs();
 
-			tempNewFilePath += file.getName();
+			tempNewFilePath += finalFileName;
 			// set output file to correct file type
 			final String finalNewFilePath = tempNewFilePath.substring(0, tempNewFilePath.lastIndexOf(".")) + "."+filetype;
 			final String[] command = { avCommand, "-y","-i", file.getAbsolutePath(), "-acodec",filetype.equals("ogg")?"libvorbis":"libmp3lame", isCBR ? "-b" : "-aq", qualityOrBitRate,finalNewFilePath };
