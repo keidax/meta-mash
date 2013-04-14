@@ -26,17 +26,20 @@ public class FileConverter {
 			String tempNewFilePath = baseOutputDirectory.getAbsolutePath() + "/";
 
 			final File artworkFile;
+			final HashMap<String, String> yamlData;
 			final boolean containsArtwork;
+			final boolean hasYaml;
 
 			String yamlFilePath = fileBase + ".yml";
 			File yamlFile = new File(yamlFilePath);
 			if (yamlFile.exists()) {
-				HashMap<String, String> realData  = YamlUtilities.getMatchingYamlData(yamlFile);
-				tempNewFilePath += realData.get("artist") + "/" + realData.get("album") + "/";
-				if (realData.containsKey("artwork"))
+				hasYaml = true;
+				yamlData  = YamlUtilities.getMatchingYamlData(yamlFile);
+				tempNewFilePath += yamlData.get("artist") + "/" + yamlData.get("album") + "/";
+				if (yamlData.containsKey("artwork"))
 				{
 
-					String artworkPath = realData.get("artwork");
+					String artworkPath = yamlData.get("artwork");
 					if (artworkPath != null && !artworkPath.equals("")) {
 						containsArtwork = true;
 						artworkFile = new File(file.getParentFile() +"/"+ artworkPath);
@@ -55,6 +58,8 @@ public class FileConverter {
 				tempNewFilePath += "Unknown Artist/Unknow Album/";
 				containsArtwork = false;
 				artworkFile = null;
+				hasYaml = false;
+				yamlData = null;
 			}
 			File albumOutputDirectory = new File(tempNewFilePath);
 			albumOutputDirectory.mkdirs();
@@ -70,14 +75,14 @@ public class FileConverter {
 				public void run() {
 					try {
 						Process process = Runtime.getRuntime().exec(command);
-						IOUtils.copy(process.getInputStream(), System.out);
-						IOUtils.copy(process.getErrorStream(), System.out);
+//						IOUtils.copy(process.getInputStream(), System.out);
+//						IOUtils.copy(process.getErrorStream(), System.out);
 						process.waitFor();
 						
 						File finishedFile = new File(finalNewFilePath);
 						if (finishedFile.exists()) {
-							if (containsArtwork) {
-								AudioTaggerUtilities.setFileArtwork(finishedFile, artworkFile);
+							if (hasYaml) {
+								AudioTaggerUtilities.setFileArtworkAndTags(finishedFile, artworkFile, containsArtwork, yamlData);
 							}
 						} else {
 							System.err.println("File "+finalNewFilePath+" not created! Oh no!");
