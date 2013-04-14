@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -103,6 +104,8 @@ public class MainWindow extends JFrame {
 		JPanel optionsb = new JPanel();
 		JPanel optionstsub = new JPanel();
 		JPanel optionsbsub = new JPanel();
+		JPanel combo = new JPanel();
+		JComboBox jcbox = new JComboBox();
 		
 		vbrrad = new JRadioButton();
 		cbrrad = new JRadioButton();
@@ -120,6 +123,7 @@ public class MainWindow extends JFrame {
 		this.getContentPane().add(optionstsub);
 		this.getContentPane().add(optionsb);
 		this.getContentPane().add(optionsbsub);
+		this.getContentPane().add(combo);
 		JLabel vbrlabel = new JLabel("VBR - Choose quality");
 		JLabel cbrlabel = new JLabel("CBR - Choose bitrate");
 		vbrslider = new JSlider(0,31);
@@ -140,6 +144,10 @@ public class MainWindow extends JFrame {
 		middlePanel.add(field2);
 		middlePanel.add(butt2);
 		bottomPanel.add(butt3);
+		combo.add(jcbox);
+
+		jcbox.addItem(".mp3");
+		jcbox.addItem(".ogg");
 		
 		optionst.setLayout(new FlowLayout(FlowLayout.CENTER));
 		optionsb.setLayout(new FlowLayout(FlowLayout.CENTER));
