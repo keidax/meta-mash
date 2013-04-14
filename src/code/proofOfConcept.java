@@ -3,20 +3,17 @@ package code;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.yaml.snakeyaml.Yaml;
 
 public class proofOfConcept {
 
 	public static void main(String[] args){
-		File file = new File("test.txt");
+		File file = new File("test_in/song_01.yml");
 		String s = file.getAbsolutePath();
 		FileReader reader;
 		try {
-			reader = new FileReader(file);
+			reader = new FileReader(s);
 			Yaml yammy = new Yaml();
 			Object data = yammy.load(reader);
 			System.out.println(data);
