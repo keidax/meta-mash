@@ -26,8 +26,6 @@ import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 @SuppressWarnings("serial")
 public class MainWindow extends JFrame {
@@ -46,6 +44,7 @@ public class MainWindow extends JFrame {
 	JSlider vbrslider;
 	JSlider cbrslider;
 	JLabel filesToConv;
+	JComboBox<String> jcbox;
 	
 	String[] fileFormats = { "mp3", "ogg", "m4a","flac","wav" }; //TODO add more here?
 
@@ -105,7 +104,7 @@ public class MainWindow extends JFrame {
 		JPanel optionstsub = new JPanel();
 		JPanel optionsbsub = new JPanel();
 		JPanel combo = new JPanel();
-		JComboBox jcbox = new JComboBox();
+		jcbox = new JComboBox<String>();
 		
 		vbrrad = new JRadioButton();
 		cbrrad = new JRadioButton();
@@ -146,8 +145,8 @@ public class MainWindow extends JFrame {
 		bottomPanel.add(butt3);
 		combo.add(jcbox);
 
-		jcbox.addItem(".mp3");
-		jcbox.addItem(".ogg");
+		jcbox.addItem("mp3");
+		jcbox.addItem("ogg");
 		
 		optionst.setLayout(new FlowLayout(FlowLayout.CENTER));
 		optionsb.setLayout(new FlowLayout(FlowLayout.CENTER));
@@ -272,6 +271,6 @@ public class MainWindow extends JFrame {
 
 	public void convertFiles(List<File> files, File baseOutputDirectory) {
 		boolean isCBR = cbrrad.isSelected();
-		new FileConverter(files, baseOutputDirectory, updater, isCBR, isCBR ? cbrslider.getValue() : vbrslider.getValue(), "ogg");
+		new FileConverter(files, baseOutputDirectory, updater, isCBR, isCBR ? (cbrslider.getValue() +"K" ): (vbrslider.getValue()+""), (String) jcbox.getSelectedItem());
 	}
 }
