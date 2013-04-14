@@ -22,7 +22,9 @@ public class MainWindow extends JFrame {
 	String[] fileFormats = { "mp3", "ogg", "m4a" };
 
 	public MainWindow() {
+		
 		super();
+		System.out.println(System.getProperty("os.name"));
 		this.setSize(200, 200);
 		this.setVisible(true);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -98,6 +100,9 @@ public class MainWindow extends JFrame {
 		ExecutorService pool = Executors.newFixedThreadPool(cores);
 		totalSongs = files.size();
 		
+		//workaround for mac
+		String avCommand = System.getProperty("os.name").equalsIgnoreCase("linux")? "avconv":"avconvert";
+		
 		for (File file : files) {
 			
 			String fileBase = file.getPath();
@@ -127,7 +132,7 @@ public class MainWindow extends JFrame {
 			System.out.println(newFilePath);
 
 			// System.out.println(newFilePath);
-			final String[] command = { "avconv", "-i", file.getAbsolutePath(),
+			final String[] command = { avCommand, "-i", file.getAbsolutePath(),
 					"-metadata", "artist=sadf",
 					"-b", "192K", newFilePath };
 //					"-q","1", newFilePath };
