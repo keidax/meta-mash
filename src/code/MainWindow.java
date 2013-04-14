@@ -1,20 +1,20 @@
 package code;
 
-import java.awt.Dimension;
+import java.awt.Color;
 import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Dictionary;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -25,11 +25,8 @@ import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.plaf.basic.BasicProgressBarUI;
-import javax.swing.plaf.multi.MultiProgressBarUI;
 
 @SuppressWarnings("serial")
 public class MainWindow extends JFrame {
@@ -65,8 +62,36 @@ public class MainWindow extends JFrame {
 			e1.printStackTrace();
 		}
 		
-		field1 = new JTextField();
-		field2 = new JTextField();
+		field1 = new JTextField(){
+			@Override
+		    protected void paintComponent(java.awt.Graphics g) {
+				super.paintComponent(g);
+
+				if(getText().isEmpty()){
+					Graphics2D g2 = (Graphics2D)g.create();
+					g2.setBackground(Color.gray);
+					g2.setFont(getFont().deriveFont(Font.ITALIC));
+					FontMetrics fm = g2.getFontMetrics();
+					g2.drawString("Location of music files", 6, fm.getHeight()+1); //figure out x, y from font's FontMetrics and size of component.
+					g2.dispose();
+				}
+			}
+		};
+		field2 = new JTextField(){
+			@Override
+		    protected void paintComponent(java.awt.Graphics g) {
+				super.paintComponent(g);
+
+				if(getText().isEmpty()){
+					Graphics2D g2 = (Graphics2D)g.create();
+					g2.setBackground(Color.gray);
+					g2.setFont(getFont().deriveFont(Font.ITALIC));
+					FontMetrics fm = g2.getFontMetrics();
+					g2.drawString("Location where output files go", 6, fm.getHeight()+1); //figure out x, y from font's FontMetrics and size of component.
+					g2.dispose();
+				}
+			}
+		};
 		JButton butt1 = new JButton("Browse");
 		JButton butt2 = new JButton("Browse");
 		JButton butt3 = new JButton("Convert your Files Now!");
@@ -156,13 +181,11 @@ public class MainWindow extends JFrame {
 		
 
 		butt1.addActionListener(new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// Insert JFileChooser code
 				JFileChooser fileChooser = new JFileChooser(new File("/home/gabriel/code/music-converter"));
 				fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-				System.out.println("choose music directory");
+				
 				int returnVal = fileChooser.showOpenDialog(MainWindow.this);
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					File musicDirectory = fileChooser.getSelectedFile();
@@ -170,19 +193,13 @@ public class MainWindow extends JFrame {
 					List<File> inputFiles = getMusicFilesFromDirectory(musicDirectory);
 					System.out.println(inputFiles.size() + " music files found.");
 				}
-				//Insert JFileChooser code
 			}
-			
 		});
 		
 		butt2.addActionListener(new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
-
-
-				JFileChooser fileChooser = new JFileChooser(new File(
-						"/home/gabriel/code/music-converter"));
+				JFileChooser fileChooser = new JFileChooser(new File("/home/gabriel/code/music-converter"));
 				fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 				
 				int returnVal = fileChooser.showOpenDialog(MainWindow.this);
@@ -190,9 +207,7 @@ public class MainWindow extends JFrame {
 					File outputDirectory = fileChooser.getSelectedFile();
 					field2.setText(outputDirectory.toString());
 				}
-				
 			}
-			
 		});
 		
 		butt3.addActionListener(new ActionListener() {
@@ -202,9 +217,7 @@ public class MainWindow extends JFrame {
 				if (! field1.getText().equals("") && ! field2.getText().equals("") && (vbrrad.isSelected() || cbrrad.isSelected())) {	
 					convertFiles(getMusicFilesFromDirectory(toFile(field1)), toFile(field2));
 				}
-				
 			}
-			
 		});
 		
 		this.pack();
@@ -244,15 +257,12 @@ public class MainWindow extends JFrame {
 					musicFiles.add(child);
 				}
 			}
-
 		}
 		return musicFiles;
 	}
 
 	public void convertFiles(List<File> files, File baseOutputDirectory) {
 		boolean isCBR = cbrrad.isSelected();
-		FileConverter conv = new FileConverter(files, baseOutputDirectory, updater, isCBR, isCBR ? cbrslider.getValue() : vbrslider.getValue());
-
+		new FileConverter(files, baseOutputDirectory, updater, isCBR, isCBR ? cbrslider.getValue() : vbrslider.getValue());
 	}
-
 }
