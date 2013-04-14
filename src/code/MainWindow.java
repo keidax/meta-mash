@@ -72,7 +72,7 @@ public class MainWindow extends JFrame {
 					g2.setBackground(Color.gray);
 					g2.setFont(getFont().deriveFont(Font.ITALIC));
 					FontMetrics fm = g2.getFontMetrics();
-					g2.drawString("Location of music files", 6, fm.getHeight()+1); //figure out x, y from font's FontMetrics and size of component.
+					g2.drawString("Location of music files", fm.charWidth('L'), fm.getHeight()+1);
 					g2.dispose();
 				}
 			}
@@ -87,7 +87,7 @@ public class MainWindow extends JFrame {
 					g2.setBackground(Color.gray);
 					g2.setFont(getFont().deriveFont(Font.ITALIC));
 					FontMetrics fm = g2.getFontMetrics();
-					g2.drawString("Location where output files go", 6, fm.getHeight()+1); //figure out x, y from font's FontMetrics and size of component.
+					g2.drawString("Location where output files go", fm.charWidth('L'), fm.getHeight()+1);
 					g2.dispose();
 				}
 			}
