@@ -193,7 +193,7 @@ public class MainWindow extends JFrame {
 					File musicDirectory = fileChooser.getSelectedFile();
 					field1.setText(musicDirectory.getAbsolutePath().toString());
 					List<File> inputFiles = getMusicFilesFromDirectory(musicDirectory);
-					System.out.println(inputFiles.size() + " music files found.");
+//					System.out.println(inputFiles.size() + " music files found.");
 					
 					filesToConv.setText(inputFiles.size() + " music files found.");
 				}

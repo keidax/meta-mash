@@ -95,8 +95,8 @@ public class FileConverter {
 				public void run() {
 					try {
 						Process process = Runtime.getRuntime().exec(command);
-						IOUtils.copy(process.getInputStream(), System.out);
-						IOUtils.copy(process.getErrorStream(), System.err);
+//						IOUtils.copy(process.getInputStream(), System.out);
+//						IOUtils.copy(process.getErrorStream(), System.err);
 						process.waitFor();
 						
 						File finishedFile = new File(finalNewFilePath);
