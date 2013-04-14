@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -31,23 +32,23 @@ public class MainWindow extends JFrame {
 		super();
 		this.setSize(200, 200);
 		this.setVisible(true);
-		this.getContentPane().setLayout(new GridLayout(2,2));
+		this.getContentPane().setLayout(new GridLayout(2, 2));
 		JTextField field1 = new JTextField();
 		JTextField field2 = new JTextField();
 		JButton butt1 = new JButton("Browse");
 		JButton butt2 = new JButton("Browse");
 		butt1.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//Insert JFileChooser code
+				// Insert JFileChooser code
 			}
 		});
 		butt2.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//Insert JFileChoose code
+				// Insert JFileChoose code
 			}
 		});
 		this.getContentPane().add(butt1);
@@ -56,14 +57,11 @@ public class MainWindow extends JFrame {
 		field2.setColumns(17);
 		this.getContentPane().add(field1);
 		this.getContentPane().add(field2);
-		
-		
-		
+
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
+
 		this.pack();
-		
-		
+
 		JFileChooser fileChooser = new JFileChooser(new File(
 				"/home/gabriel/code/music-converter"));
 		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -135,66 +133,80 @@ public class MainWindow extends JFrame {
 		System.out.println("# of cores: " + cores);
 		ExecutorService pool = Executors.newFixedThreadPool(cores);
 		totalSongs = files.size();
-		
-		//workaround for mac
-		String avCommand = System.getProperty("os.name").equalsIgnoreCase("linux")? "avconv":"avconvert";
-		
+
+		// workaround for mac
+		String avCommand = System.getProperty("os.name").equalsIgnoreCase(
+				"linux") ? "avconv" : "avconvert";
+
 		for (File file : files) {
-			
+
 			String fileBase = file.getPath();
 			fileBase = fileBase.substring(0, fileBase.lastIndexOf("."));
 
-			String tempNewFilePath = baseOutputDirectory.getAbsolutePath() + "/";
-			
+			String tempNewFilePath = baseOutputDirectory.getAbsolutePath()
+					+ "/";
+
 			final File artworkFile;
 			final boolean containsArtwork;
 			String yamlFilePath = fileBase + ".yml";
 			File yamlFile = new File(yamlFilePath);
-			if(yamlFile.exists()){
+			if (yamlFile.exists()) {
 				Object data = YamlUtilities.getMatchingYamlData(yamlFile);
-				HashMap<String, String> realData = ((LinkedHashMap<String, String>) data);
-//				System.out.println("artist: "+realData.get("artist"));
-				tempNewFilePath+=realData.get("artist")+"/"+realData.get("album")+"/";
-				if(realData.containsKey("artwork"));{
-					containsArtwork = true;
+				HashMap<String, String> realData = (LinkedHashMap<String, String>) data;
+				/*for (Entry<String, String> entry : realData.entrySet()) {
+					System.out.println(entry.getKey() + " : "
+							+ entry.getValue());
+				}*/
+				tempNewFilePath += realData.get("artist") + "/"
+						+ realData.get("album") + "/";
+				if (realData.containsKey("artwork"))
+				{
+
 					String artworkPath = realData.get("artwork");
-					System.out.println(artworkPath);
-					artworkFile = new File(artworkPath);
+					if (artworkPath != null && !artworkPath.equals("")) {
+						containsArtwork = true;
+						artworkFile = new File(file.getParentFile() +"/"+ artworkPath);
+					} else {
+						containsArtwork = false;
+						artworkFile = null;
+					}
+
+				} else {
+					containsArtwork = false;
+					artworkFile = null;
 				}
-				
-			} else { //no yaml file
-				//TODO try to guess artist/album from filename
-				tempNewFilePath+="Unknown Artist/Unknow Album/";
+
+			} else { // no yaml file
+				// TODO try to guess artist/album from filename
+				tempNewFilePath += "Unknown Artist/Unknow Album/";
 				containsArtwork = false;
 				artworkFile = null;
 			}
 			File albumOutputDirectory = new File(tempNewFilePath);
 			albumOutputDirectory.mkdirs();
-			
-			
-			tempNewFilePath+=file.getName();
-			//make sure output file is mp3
-			final String finalNewFilePath = tempNewFilePath.substring(0, tempNewFilePath.lastIndexOf(".")) + ".mp3";
-			System.out.println(finalNewFilePath);
+
+			tempNewFilePath += file.getName();
+			// make sure output file is mp3
+			final String finalNewFilePath = tempNewFilePath.substring(0,
+					tempNewFilePath.lastIndexOf(".")) + ".mp3";
+//			System.out.println(finalNewFilePath);
 
 			// System.out.println(newFilePath);
 			final String[] command = { avCommand, "-i", file.getAbsolutePath(),
-					"-metadata", "artist=sadf",
 					"-b", "192K", finalNewFilePath };
-//					"-q","1", newFilePath };
+			// "-q","1", newFilePath };
 			pool.execute(new Runnable() {
 				@Override
 				public void run() {
 					try {
-//						runningSongs.incrementAndGet();
+						// runningSongs.incrementAndGet();
 						Process process = Runtime.getRuntime().exec(command);
 						process.waitFor();
 						File finishedFile = new File(finalNewFilePath);
-						if(finishedFile.exists()){
-							if(containsArtwork){
+						if (finishedFile.exists()) {
+							if (containsArtwork) {
 								AudioTaggerUtilities.setFileArtwork(finishedFile, artworkFile);
 							}
-							
 						} else {
 							System.err.println("File not created! Oh no!");
 						}
@@ -212,12 +224,12 @@ public class MainWindow extends JFrame {
 	}
 
 	private void threadDone() {
-//		runningSongs.decrementAndGet();
+		// runningSongs.decrementAndGet();
 		songsCompleted++;
 		System.out.println("converted " + songsCompleted + "/" + totalSongs
 				+ " songs");
 		if (songsCompleted == totalSongs) {
-			System.out.println("All songs converted!");		
+			System.out.println("All songs converted!");
 		}
 	}
 
