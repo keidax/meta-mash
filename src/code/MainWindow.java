@@ -1,33 +1,31 @@
 package code;
 
-import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map.Entry;
-import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.sound.midi.SysexMessage;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JProgressBar;
 import javax.swing.JTextField;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 import org.apache.commons.io.IOUtils;
 
+@SuppressWarnings("serial")
 public class MainWindow extends JFrame {
+	
+	final Updater updater;
 
 	AtomicInteger runningSongs = new AtomicInteger();
 	AtomicInteger totalSongs = new AtomicInteger();
@@ -39,6 +37,18 @@ public class MainWindow extends JFrame {
 
 	public MainWindow() {
 		super();
+		
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (ClassNotFoundException e1) {
+			e1.printStackTrace();
+		} catch (InstantiationException e1) {
+			e1.printStackTrace();
+		} catch (IllegalAccessException e1) {
+			e1.printStackTrace();
+		} catch (UnsupportedLookAndFeelException e1) {
+			e1.printStackTrace();
+		}
 		final JTextField field1 = new JTextField();
 		final JTextField field2 = new JTextField();
 		JButton butt1 = new JButton("Browse");
@@ -58,6 +68,8 @@ public class MainWindow extends JFrame {
 		
 		progress = new JProgressBar(0, 100);
 		this.add(progress);
+		
+		updater = new Updater(progress);
 		
 		System.out.println(System.getProperty("os.name"));
 		
@@ -149,7 +161,6 @@ public class MainWindow extends JFrame {
 				|| !directory.canRead()) {
 			return musicFiles;
 		}
-		// System.out.println("looking in directory "+directory.getPath());
 		for (File child : directory.listFiles()) {
 			if (child.exists()) {
 				if (child.isDirectory()) {
@@ -164,113 +175,7 @@ public class MainWindow extends JFrame {
 	}
 
 	public void convertFiles(List<File> files, File baseOutputDirectory) {
-		int cores = Runtime.getRuntime().availableProcessors();
-		System.out.println("# of cores: " + cores);
-		ExecutorService pool = Executors.newFixedThreadPool(cores);
-		totalSongs.set( files.size());
-
-		// workaround for mac
-		String avCommand = System.getProperty("os.name").equalsIgnoreCase(
-				"linux") ? "avconv" : "avconvert";
-
-		for (File file : files) {
-
-			String fileBase = file.getPath();
-			fileBase = fileBase.substring(0, fileBase.lastIndexOf("."));
-
-			String tempNewFilePath = baseOutputDirectory.getAbsolutePath()
-					+ "/";
-
-			final File artworkFile;
-			final boolean containsArtwork;
-
-			String yamlFilePath = fileBase + ".yml";
-			File yamlFile = new File(yamlFilePath);
-			if (yamlFile.exists()) {
-				Object data = YamlUtilities.getMatchingYamlData(yamlFile);
-				HashMap<String, String> realData = (LinkedHashMap<String, String>) data;
-				/*for (Entry<String, String> entry : realData.entrySet()) {
-					System.out.println(entry.getKey() + " : "
-							+ entry.getValue());
-				}*/
-				tempNewFilePath += realData.get("artist") + "/"
-						+ realData.get("album") + "/";
-				if (realData.containsKey("artwork"))
-				{
-
-					String artworkPath = realData.get("artwork");
-					if (artworkPath != null && !artworkPath.equals("")) {
-						containsArtwork = true;
-						artworkFile = new File(file.getParentFile() +"/"+ artworkPath);
-					} else {
-						containsArtwork = false;
-						artworkFile = null;
-					}
-
-				} else {
-					containsArtwork = false;
-					artworkFile = null;
-				}
-
-			} else { // no yaml file
-				// TODO try to guess artist/album from filename
-				tempNewFilePath += "Unknown Artist/Unknow Album/";
-				containsArtwork = false;
-				artworkFile = null;
-			}
-			File albumOutputDirectory = new File(tempNewFilePath);
-			albumOutputDirectory.mkdirs();
-
-			tempNewFilePath += file.getName();
-			// make sure output file is mp3
-			final String finalNewFilePath = tempNewFilePath.substring(0,
-					tempNewFilePath.lastIndexOf(".")) + ".mp3";
-//			System.out.println(finalNewFilePath);
-
-			// System.out.println(newFilePath);
-			final String[] command = { avCommand, "-y","-i", file.getAbsolutePath(),
-					"-b", "192K", finalNewFilePath };
-			// "-q","1", newFilePath };
-			pool.execute(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						// runningSongs.incrementAndGet();
-						Process process = Runtime.getRuntime().exec(command);
-						IOUtils.copy(process.getInputStream(), System.out);
-						IOUtils.copy(process.getErrorStream(), System.out);
-						process.waitFor();
-						
-						File finishedFile = new File(finalNewFilePath);
-						if (finishedFile.exists()) {
-							if (containsArtwork) {
-								AudioTaggerUtilities.setFileArtwork(finishedFile, artworkFile);
-							}
-						} else {
-							System.err.println("File "+finalNewFilePath+" not created! Oh no!");
-						}
-						threadDone();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			});
-		}
-	}
-
-	private void threadDone() {
-		// runningSongs.decrementAndGet();
-		songsCompleted.incrementAndGet();
-		System.out.println("converted " + songsCompleted.get() + "/" + totalSongs.get()
-				+ " songs");
-		progress.setValue((int) (songsCompleted.get()*100/totalSongs.doubleValue()));
-		if (songsCompleted.get() == totalSongs.get()) {
-			System.out.println("All songs converted!");
-		}
+		FileConverter conv = new FileConverter(files, baseOutputDirectory, updater);
 	}
 
 }
