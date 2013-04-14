@@ -6,12 +6,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -25,6 +28,8 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.plaf.basic.BasicProgressBarUI;
+import javax.swing.plaf.multi.MultiProgressBarUI;
 
 @SuppressWarnings("serial")
 public class MainWindow extends JFrame {
@@ -36,8 +41,14 @@ public class MainWindow extends JFrame {
 	AtomicInteger songsCompleted = new AtomicInteger();
 
 	JProgressBar progress;
+	JRadioButton vbrrad;
+	JRadioButton cbrrad;
+	JTextField field1;
+	JTextField field2;
+	JSlider vbrslider;
+	JSlider cbrslider;
 	
-	String[] fileFormats = { "mp3", "ogg", "m4a" };
+	String[] fileFormats = { "mp3", "ogg", "m4a" }; //TODO add more here?
 
 	public MainWindow() {
 		super();
@@ -54,8 +65,8 @@ public class MainWindow extends JFrame {
 			e1.printStackTrace();
 		}
 		
-		final JTextField field1 = new JTextField();
-		final JTextField field2 = new JTextField();
+		field1 = new JTextField();
+		field2 = new JTextField();
 		JButton butt1 = new JButton("Browse");
 		JButton butt2 = new JButton("Browse");
 		JButton butt3 = new JButton("Convert your Files Now!");
@@ -67,8 +78,8 @@ public class MainWindow extends JFrame {
 		JPanel optionstsub = new JPanel();
 		JPanel optionsbsub = new JPanel();
 		
-		JRadioButton vbrrad = new JRadioButton();
-		JRadioButton cbrrad = new JRadioButton();
+		vbrrad = new JRadioButton();
+		cbrrad = new JRadioButton();
 		vbrrad.setBorder(null);
 		
 		ButtonGroup bg = new ButtonGroup();
@@ -83,14 +94,15 @@ public class MainWindow extends JFrame {
 		this.getContentPane().add(optionstsub);
 		this.getContentPane().add(optionsb);
 		this.getContentPane().add(optionsbsub);
-		JLabel vbrlabel = new JLabel("VBR - Higher quality, slower time");
-		JLabel sbrlabel = new JLabel("SBR - Lower quality, more specific control");
-		JSlider vbrslider = new JSlider(0,31);
-		JSlider sbrslider = new JSlider(0,100);
-		sbrslider.setPaintTicks(true);
-		sbrslider.setMajorTickSpacing(25);
-		sbrslider.setSnapToTicks(true);
-		sbrslider.getSnapToTicks();
+		JLabel vbrlabel = new JLabel("VBR - Choose quality");
+		JLabel cbrlabel = new JLabel("CBR - Choose bitrate");
+		vbrslider = new JSlider(0,31);
+		cbrslider = new JSlider(128, 320);
+
+		cbrslider.setPaintLabels(true);
+		cbrslider.setPaintTicks(true);
+		cbrslider.setMajorTickSpacing(64);
+		cbrslider.setSnapToTicks(true);
 		
 		this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));
 		field1.setColumns(25);
@@ -108,9 +120,9 @@ public class MainWindow extends JFrame {
 		optionst.add(vbrlabel);
 		optionstsub.add(vbrslider);
 		
-		optionsbsub.add(sbrslider);
+		optionsbsub.add(cbrslider);
 		optionsb.add(cbrrad);
-		optionsb.add(sbrlabel);
+		optionsb.add(cbrlabel);
 		
 		vbrslider.addChangeListener(new ChangeListener() {
 			
@@ -120,7 +132,7 @@ public class MainWindow extends JFrame {
 				
 			}
 		});
-		sbrslider.addChangeListener(new ChangeListener() {
+		cbrslider.addChangeListener(new ChangeListener() {
 			
 			public void stateChanged(ChangeEvent e) {
 				// TODO Auto-generated method stub
@@ -136,6 +148,7 @@ public class MainWindow extends JFrame {
 		
 		progress = new JProgressBar(0, 100);
 		this.add(progress);
+		progress.setStringPainted(true);
 		
 		updater = new Updater(progress);
 		
@@ -166,9 +179,18 @@ public class MainWindow extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//Insert JFileChoose code
-				File outputDirectory = getOutputDirectory();
-				field2.setText(outputDirectory.toString());
+
+
+				JFileChooser fileChooser = new JFileChooser(new File(
+						"/home/gabriel/code/music-converter"));
+				fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				
+				int returnVal = fileChooser.showOpenDialog(MainWindow.this);
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					File outputDirectory = fileChooser.getSelectedFile();
+					field2.setText(outputDirectory.toString());
+				}
+				
 			}
 			
 		});
@@ -177,7 +199,7 @@ public class MainWindow extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				//Convert files
-				if (! field1.getText().equals("") && ! field2.getText().equals("")) {	
+				if (! field1.getText().equals("") && ! field2.getText().equals("") && (vbrrad.isSelected() || cbrrad.isSelected())) {	
 					convertFiles(getMusicFilesFromDirectory(toFile(field1)), toFile(field2));
 				}
 				
@@ -191,21 +213,6 @@ public class MainWindow extends JFrame {
 	public static File toFile(JTextField field){
 		File file = new File(field.getText());
 		return file;
-	}
-	
-	public File getOutputDirectory() {
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		JFileChooser fileChooser = new JFileChooser(new File(
-				"/home/gabriel/code/music-converter"));
-		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		int returnVal = fileChooser.showOpenDialog(this);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			return fileChooser.getSelectedFile();
-
-		} else {
-			return null;
-		}
-
 	}
 
 	public boolean isMusicFile(File file) {
@@ -243,7 +250,8 @@ public class MainWindow extends JFrame {
 	}
 
 	public void convertFiles(List<File> files, File baseOutputDirectory) {
-		FileConverter conv = new FileConverter(files, baseOutputDirectory, updater);
+		boolean isCBR = cbrrad.isSelected();
+		FileConverter conv = new FileConverter(files, baseOutputDirectory, updater, isCBR, isCBR ? cbrslider.getValue() : vbrslider.getValue());
 
 	}
 

@@ -10,7 +10,7 @@ import java.util.concurrent.Executors;
 import org.apache.commons.io.IOUtils;
 
 public class FileConverter {
-	public FileConverter(List<File> files, File baseOutputDirectory, final Updater updater){
+	public FileConverter(List<File> files, File baseOutputDirectory, final Updater updater, boolean isCBR, int qualityOrBitRate){
 		updater.setTotalSongs(files.size());
 		int cores = Runtime.getRuntime().availableProcessors();
 		ExecutorService pool = Executors.newFixedThreadPool(cores);
@@ -67,9 +67,8 @@ public class FileConverter {
 			tempNewFilePath += file.getName();
 			// make sure output file is mp3
 			final String finalNewFilePath = tempNewFilePath.substring(0, tempNewFilePath.lastIndexOf(".")) + ".mp3";
-			final String[] command = { avCommand, "-y","-i", file.getAbsolutePath(),
-					"-b", "192K", finalNewFilePath };
-			// "-q","1", newFilePath };
+			final String[] command = { avCommand, "-y","-i", file.getAbsolutePath(), 
+					isCBR ? "-b" : "-q", qualityOrBitRate+"", finalNewFilePath };
 			pool.execute(new Runnable() {
 				@Override
 				public void run() {
