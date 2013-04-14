@@ -1,6 +1,7 @@
 package code;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +17,8 @@ public class MainWindow extends JFrame {
 		this.setSize(200, 200);
 		this.setVisible(true);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		JFileChooser fileChooser = new JFileChooser();
+		JFileChooser fileChooser = new JFileChooser(new File(
+				"/home/gabriel/code/music-converter"));
 		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		System.out.println("choose music directory");
 		int returnVal = fileChooser.showOpenDialog(this);
@@ -24,26 +26,28 @@ public class MainWindow extends JFrame {
 			File musicDirectory = fileChooser.getSelectedFile();
 
 			List<File> inputFiles = getMusicFilesFromDirectory(musicDirectory);
-			System.out.println(inputFiles.size()+" music files found.");
+			System.out.println(inputFiles.size() + " music files found.");
 			System.out.println("choose output directory");
 			File outputDirectory = getOutputDirectory();
-			System.out.println(outputDirectory.getPath());
+			// System.out.println(outputDirectory.getPath());
+			convertFiles(inputFiles, outputDirectory);
 		}
 
 	}
 
 	public File getOutputDirectory() {
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		JFileChooser fileChooser = new JFileChooser();
+		JFileChooser fileChooser = new JFileChooser(new File(
+				"/home/gabriel/code/music-converter"));
 		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		int returnVal = fileChooser.showOpenDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			return fileChooser.getSelectedFile();
-			
-		} else{
+
+		} else {
 			return null;
 		}
-		
+
 	}
 
 	public boolean isMusicFile(File file) {
@@ -63,10 +67,11 @@ public class MainWindow extends JFrame {
 
 	public List<File> getMusicFilesFromDirectory(File directory) {
 		List<File> musicFiles = new ArrayList<File>();
-		if (directory.isHidden() || !directory.isDirectory() || !directory.canRead()) {
+		if (directory.isHidden() || !directory.isDirectory()
+				|| !directory.canRead()) {
 			return musicFiles;
 		}
-//		System.out.println("looking in directory "+directory.getPath());
+		// System.out.println("looking in directory "+directory.getPath());
 		for (File child : directory.listFiles()) {
 			if (child.exists()) {
 				if (child.isDirectory()) {
@@ -78,6 +83,24 @@ public class MainWindow extends JFrame {
 
 		}
 		return musicFiles;
+	}
+
+	public void convertFiles(List<File> files, File outputDirectory) {
+		for (File file : files) {
+			String newFilePath = outputDirectory.getAbsolutePath() + "/" + file.getName();
+			newFilePath = newFilePath.substring(0, newFilePath.lastIndexOf(".")) + ".mp3";
+			System.out.println(newFilePath);
+			String[] command = { "avconv", "-i", file.getAbsolutePath(), "-q",
+					"0",
+					newFilePath};
+			try {
+				Process process = Runtime.getRuntime().exec(command);
+			} catch (IOException e) {
+				
+			}
+		}
+		System.out.println("Files converted!");
+		System.exit(0);
 	}
 
 }
